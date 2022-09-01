@@ -1,0 +1,4 @@
+/dev/
+/go_phone
+/recordings/*
+!/**/.gitkeep
