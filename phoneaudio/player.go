@@ -79,8 +79,9 @@ func (pa *PhoneAudio) Play(fileName string) error {
 	}
 
 	// out := make([]int32, 8192)
-	out := make([]int32, 512)
+	out := make([]int32, 1024)
 	stream, err := portaudio.OpenDefaultStream(0, numOutputChannels, float64(streamSampleRate), len(out), &out)
+
 	if err != nil {
 		return err
 	}
