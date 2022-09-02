@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gordonklaus/portaudio"
+	"github.com/sirupsen/logrus"
 )
 
 func (pa *PhoneAudio) Record(fileName string) error {
@@ -21,13 +22,17 @@ func (pa *PhoneAudio) Record(fileName string) error {
 	if err != nil {
 		return err
 	}
+	logrus.Info("prepareAudioFile")
 	if err := pa.prepareAudioFile(f); err != nil {
 		return err
 	}
 
 	nSamples := 0
+
+
 	// FIXME (panic!!!)
 	defer func() {
+		logrus.Info("fillInMissingSizes")
 		// fill in missing sizes
 		totalBytes := 4 + 8 + 18 + 8 + 8 + 4*nSamples
 		if _, err = f.Seek(4, 0); err != nil {
@@ -53,6 +58,8 @@ func (pa *PhoneAudio) Record(fileName string) error {
 		}
 	}()
 
+
+	logrus.Info("openDefaultStream")
 	in := make([]int32, 64)
 	stream, err := portaudio.OpenDefaultStream(pa.NumInputChannels, 0, float64(pa.SampleRate), len(in), in)
 	if err != nil {
