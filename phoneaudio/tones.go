@@ -10,7 +10,7 @@ import (
 
 // https://en.wikipedia.org/wiki/Busy_signal
 func (pa *PhoneAudio) BusyTone(play_time int) error {
-	s := newStereoSine(425, 425, float64(pa.SampleRate))
+	s := newStereoSine(425, 425, float64(streamSampleRate))
 	defer s.Close()
 	tone_time := 500
 	pause_time := 500
@@ -19,7 +19,7 @@ func (pa *PhoneAudio) BusyTone(play_time int) error {
 
 // https://en.wikipedia.org/wiki/Ringing_tone
 func (pa *PhoneAudio) RingingTone(play_time int) error {
-	s := newStereoSine(425, 425, float64(pa.SampleRate))
+	s := newStereoSine(425, 425, float64(streamSampleRate))
 	defer s.Close()
 	tone_time := 1000
 	pause_time := 2000
@@ -27,7 +27,7 @@ func (pa *PhoneAudio) RingingTone(play_time int) error {
 }
 
 func (pa *PhoneAudio) Beep(tone_time int) error {
-	s := newStereoSine(2000, 2000, float64(pa.SampleRate))
+	s := newStereoSine(2000, 2000, float64(streamSampleRate))
 	defer s.Close()
 	pause_time := 200
 	return pa.playTone(s, tone_time+pause_time, tone_time, pause_time)
@@ -85,11 +85,10 @@ func newStereoSine(freqL, freqR, sampleRate float64) *stereoSine {
 }
 
 func (g *stereoSine) processAudio(out [][]float32) {
-	var volume float32 = 0.3
 	for i := range out[0] {
-		out[0][i] = float32(math.Sin(2*math.Pi*g.phaseL)) * volume
+		out[0][i] = float32(math.Sin(2 * math.Pi * g.phaseL))
 		_, g.phaseL = math.Modf(g.phaseL + g.stepL)
-		out[1][i] = float32(math.Sin(2*math.Pi*g.phaseR)) * volume
+		out[1][i] = float32(math.Sin(2 * math.Pi * g.phaseR))
 		_, g.phaseR = math.Modf(g.phaseR + g.stepR)
 	}
 }

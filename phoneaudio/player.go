@@ -70,14 +70,17 @@ func (pa *PhoneAudio) Play(fileName string) error {
 		case "SSND":
 			chunk.Seek(8, 1) //ignore offset and block
 			audio = chunk
+		case "NAME":
+			break
 		default:
 			// FIXME
 			fmt.Printf("ignoring unknown chunk '%s'\n", id)
 		}
 	}
 
-	out := make([]int32, 8192)
-	stream, err := portaudio.OpenDefaultStream(0, pa.NumOutputChannels, float64(pa.SampleRate), len(out), &out)
+	// out := make([]int32, 8192)
+	out := make([]int32, 512)
+	stream, err := portaudio.OpenDefaultStream(0, numOutputChannels, float64(streamSampleRate), len(out), &out)
 	if err != nil {
 		return err
 	}

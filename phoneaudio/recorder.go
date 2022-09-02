@@ -29,7 +29,6 @@ func (pa *PhoneAudio) Record(fileName string) error {
 
 	nSamples := 0
 
-
 	// FIXME (panic!!!)
 	defer func() {
 		logrus.Info("fillInMissingSizes")
@@ -58,10 +57,9 @@ func (pa *PhoneAudio) Record(fileName string) error {
 		}
 	}()
 
-
 	logrus.Info("openDefaultStream")
 	in := make([]int32, 64)
-	stream, err := portaudio.OpenDefaultStream(pa.NumInputChannels, 0, float64(pa.SampleRate), len(in), in)
+	stream, err := portaudio.OpenDefaultStream(numInputChannels, 0, float64(streamSampleRate), len(in), in)
 	if err != nil {
 		return err
 	}
@@ -73,7 +71,7 @@ func (pa *PhoneAudio) Record(fileName string) error {
 
 	// FIXME
 	ctxBg := context.Background()
-	ctx, cancel := context.WithTimeout(ctxBg, time.Duration(pa.MaxRecordTime)*time.Second)
+	ctx, cancel := context.WithTimeout(ctxBg, time.Duration(maxRecordTime)*time.Second)
 	defer cancel()
 	for {
 		if !pa.active {
@@ -118,7 +116,7 @@ func (pa *PhoneAudio) prepareAudioFile(f *os.File) error {
 	if err := binary.Write(f, binary.BigEndian, int32(18)); err != nil { //size
 		return err
 	}
-	if err := binary.Write(f, binary.BigEndian, int16(pa.NumInputChannels)); err != nil { //channels
+	if err := binary.Write(f, binary.BigEndian, int16(numInputChannels)); err != nil { //channels
 		return err
 	}
 	if err := binary.Write(f, binary.BigEndian, int32(0)); err != nil { //number of samples

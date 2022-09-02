@@ -33,34 +33,18 @@ func main() {
 	// }
 	// defer phpi.Stop()
 
-	pha := phoneaudio.PhoneAudio{
-		SampleRate:        44100, // don't change yet
-		NumInputChannels:  1,
-		NumOutputChannels: 1,
-		MaxRecordTime:     10, // sec
-	}
+	pha := phoneaudio.PhoneAudio{}
 	go func() {
 		<-channel_stop
 		pha.Stop()
 	}()
 
 	pha.Initialize()
-	defer pha.Terminate()
-	pha.Start()
-	pha.RingingTone(4000)
-	// greetings_file := "greetings/greetings.aiff"
-	// if err := pha.Play(greetings_file); err != nil {
-	// 	panic(err)
-	// }
-	// pha.Beep(700)
-	// recording_file := "recordings/0000.aiff"
-	// err := pha.Record(recording_file)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	panic(err)
-	// }
-	pha.BusyTone(3000)
 
+	// loop
+	pha.Start()
+
+	defer pha.Terminate()
 }
 
 func chk(err error) {
