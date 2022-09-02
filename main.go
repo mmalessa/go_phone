@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/mmalessa/go_phone/phoneaudio"
-	"github.com/mmalessa/go_phone/phonepi"
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,12 +25,13 @@ func main() {
 	}()
 
 	catchEscape(channel_stop)
+	defer catchEscapeCleanUp()
 
-	phpi := phonepi.PhonePi {}
-	if err := phpi.Start(); err != nil {
-		panic(err)
-	}
-	defer phpi.Stop()
+	// phpi := phonepi.PhonePi {}
+	// if err := phpi.Start(); err != nil {
+	// 	panic(err)
+	// }
+	// defer phpi.Stop()
 
 	pha := phoneaudio.PhoneAudio{
 		SampleRate:        44100, // don't change yet
@@ -43,7 +43,6 @@ func main() {
 		<-channel_stop
 		pha.Stop()
 	}()
-
 
 	pha.Initialize()
 	defer pha.Terminate()
