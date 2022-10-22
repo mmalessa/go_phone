@@ -2,12 +2,14 @@ package main
 
 import (
 	// "fmt"
+
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/mmalessa/go_phone/phoneaudio"
+	"github.com/mmalessa/go_phone/orangepi"
 	"github.com/sirupsen/logrus"
 )
 
@@ -24,27 +26,41 @@ func main() {
 		os.Exit(0)
 	}()
 
+	channelHook := make(chan bool)
+	var hookState bool = false
+
 	catchEscape(channel_stop)
 	defer catchEscapeCleanUp()
 
-	// phpi := phonepi.PhonePi {}
-	// if err := phpi.Start(); err != nil {
-	// 	panic(err)
-	// }
-	// defer phpi.Stop()
+	opi := orangepi.OrangePi{
+		ChannelHook: channelHook,
+	}
+	if err := opi.Start(); err != nil {
+		panic(err)
+	}
+	defer opi.Stop()
 
-	pha := phoneaudio.PhoneAudio{}
-	go func() {
-		<-channel_stop
-		pha.Stop()
-	}()
+	for {
+		select {
+		case <-channel_stop:
+			break
+		case hookCurrentState := <-channelHook:
+			if hookCurrentState != hookState {
+				hookState = hookCurrentState
+				fmt.Printf("Hook state: %t\n", hookState)
+			}
+		}
+	}
 
-	pha.Initialize()
-
-	// loop
-	pha.Start()
-
-	defer pha.Terminate()
+	// pha := phoneaudio.PhoneAudio{}
+	// go func() {
+	// 	<-channel_stop
+	// 	pha.Stop()
+	// }()
+	// pha.Initialize()
+	// // loop
+	// pha.Start()
+	// defer pha.Terminate()
 }
 
 func chk(err error) {
