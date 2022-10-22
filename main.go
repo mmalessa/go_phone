@@ -59,7 +59,7 @@ func main() {
 
 	// pha := phoneaudio.PhoneAudio{}
 	// go func() {
-	// 	<-channel_stop
+	// 	<-channelHook
 	// 	pha.Stop()
 	// }()
 	// pha.Initialize()
