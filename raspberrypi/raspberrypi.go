@@ -1,33 +1,34 @@
-package phonepi
+package raspberrypi
 
 import (
-	"github.com/stianeikeland/go-rpio/v4"
 	"time"
+
+	"github.com/stianeikeland/go-rpio/v4"
 )
 
-type PhonePi struct {
+type RaspberryPi struct {
 }
 
 var (
-	ledRed = rpio.Pin(6)	
-	ledGreen = rpio.Pin(5)
-	hookSwitch = rpio.Pin(21)
+	ledRed      = rpio.Pin(6)
+	ledGreen    = rpio.Pin(5)
+	hookSwitch  = rpio.Pin(21)
 	hookOnState = rpio.High
 	powerSwitch = rpio.Pin(17)
 
 	hookCurrentState = hookOnState
 )
 
-func (pp *PhonePi) Start() error {
+func (rp *RaspberryPi) Start() error {
 	if err := rpio.Open(); err != nil {
 		return err
 	}
-	pp.initialize()
-	pp.loop()
+	rp.initialize()
+	rp.loop()
 	return nil
 }
 
-func (pp *PhonePi) Stop() {
+func (rp *RaspberryPi) Stop() {
 	ledRed.Low()
 	ledGreen.Low()
 	hookSwitch.Detect(rpio.NoEdge)
@@ -35,7 +36,7 @@ func (pp *PhonePi) Stop() {
 	rpio.Close()
 }
 
-func (pp *PhonePi) initialize() {
+func (rp *RaspberryPi) initialize() {
 	ledRed.Output()
 	ledGreen.Output()
 	hookSwitch.Input()
@@ -49,19 +50,19 @@ func (pp *PhonePi) initialize() {
 	hookSwitch.Detect(rpio.AnyEdge)
 }
 
-func (pp *PhonePi) loop() {
+func (rp *RaspberryPi) loop() {
 	go func() {
 		for {
 			// ledRed.Toggle()
 			if hookSwitch.EdgeDetected() {
-				pp.onHookEdgeDetected()
+				rp.onHookEdgeDetected()
 			}
 			time.Sleep(10 * time.Millisecond)
 		}
 	}()
 }
 
-func (pp *PhonePi) onHookEdgeDetected() {
+func (rp *RaspberryPi) onHookEdgeDetected() {
 	time.Sleep(10 * time.Millisecond)
 
 	hookState := hookSwitch.Read()
@@ -70,16 +71,16 @@ func (pp *PhonePi) onHookEdgeDetected() {
 	}
 	hookCurrentState = hookState
 	if hookCurrentState == hookOnState {
-		pp.onHandsetOn()
+		rp.onHandsetOn()
 	} else {
-		pp.onHandsetOff()
+		rp.onHandsetOff()
 	}
 }
 
-func (pp *PhonePi) onHandsetOff() {
+func (rp *RaspberryPi) onHandsetOff() {
 	ledGreen.High()
 }
 
-func (pp *PhonePi) onHandsetOn() {
+func (rp *RaspberryPi) onHandsetOn() {
 	ledGreen.Low()
 }
