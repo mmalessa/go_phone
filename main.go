@@ -1,9 +1,6 @@
 package main
 
 import (
-	// "fmt"
-
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,27 +10,33 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var opi orangepi.OrangePi
+
 func main() {
+	configLogs()
 
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	channel_stop := make(chan int)
-	go func() {
-		sig := <-sigs
-		logrus.Infof("SIGNAL RECEIVED: %s", sig)
-		channel_stop <- 1
-		time.Sleep(3 * time.Second)
-		os.Exit(0)
-	}()
+	logrus.Info("GoPhone start")
 
+	channelStop := make(chan int)
 	channelHook := make(chan bool)
 	var hookState bool = false
 
-	catchEscape(channel_stop)
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		sig := <-sigs
+		logrus.Debugf("SIGNAL RECEIVED: %s", sig)
+		channelHook <- false
+		channelStop <- 1
+		// stopPhone()
+	}()
+
+	catchEscape(channelStop)
 	defer catchEscapeCleanUp()
 
-	opi := orangepi.OrangePi{
+	opi = orangepi.OrangePi{
 		ChannelHook: channelHook,
+		ChannelStop: channelStop,
 	}
 	if err := opi.Start(); err != nil {
 		panic(err)
@@ -42,13 +45,15 @@ func main() {
 
 	for {
 		select {
-		case <-channel_stop:
-			break
 		case hookCurrentState := <-channelHook:
 			if hookCurrentState != hookState {
 				hookState = hookCurrentState
-				fmt.Printf("Hook state: %t\n", hookState)
+				logrus.Debugf("Hook state: %t", hookState)
 			}
+		case chval := <-channelStop:
+			logrus.Debugf("PowerOff (%d)", chval)
+			stopPhone()
+			break
 		}
 	}
 
@@ -63,8 +68,14 @@ func main() {
 	// defer pha.Terminate()
 }
 
-func chk(err error) {
-	if err != nil {
-		panic(err)
-	}
+func stopPhone() {
+	logrus.Info("GoPhone stop")
+	time.Sleep(100 * time.Millisecond)
+	opi.Stop()
+	os.Exit(0)
+}
+
+func configLogs() {
+	logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetFormatter(&logrus.TextFormatter{})
 }
