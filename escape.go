@@ -37,12 +37,13 @@ import (
 )
 
 // For tests only
-func catchEscape(channel_stop chan int) {
+func catchEscape(channelStop chan int) {
 	go func() {
 		key := C.getch()
 		if key == 27 {
 			fmt.Println("Esc pressed")
-			channel_stop <- 1
+			channelStop <- 1
+			stopPhone()
 		}
 	}()
 }
