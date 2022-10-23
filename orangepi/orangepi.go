@@ -12,6 +12,7 @@ type OrangePi struct {
 }
 
 var (
+	stateActive      = false
 	ledRed           = orio.Pin(orio.PH7)
 	ledGreen         = orio.Pin(orio.PH8)
 	hookSwitch       = orio.Pin(orio.PH6)
@@ -24,6 +25,7 @@ var (
 func (op *OrangePi) Start() error {
 	orio.DebugMode = false
 	op.initialize()
+	stateActive = true
 	ledRed.Low()
 	ledGreen.High()
 	op.loop()
@@ -33,6 +35,7 @@ func (op *OrangePi) Start() error {
 func (op *OrangePi) Stop() {
 	ledRed.Low()
 	ledGreen.Low()
+	stateActive = false
 	orio.Close()
 }
 
@@ -46,7 +49,7 @@ func (op *OrangePi) initialize() {
 func (op *OrangePi) loop() {
 	go func() {
 		for {
-			if hookSwitch.State() != hookCurrentState {
+			if stateActive && hookSwitch.State() != hookCurrentState {
 				time.Sleep(3 * time.Millisecond)
 				hookState := hookSwitch.State()
 				if hookState != hookCurrentState {
@@ -55,7 +58,7 @@ func (op *OrangePi) loop() {
 				}
 			}
 
-			if powerOffSwitch.State() == powerOffActive {
+			if stateActive && powerOffSwitch.State() == powerOffActive {
 				time.Sleep(500 * time.Millisecond)
 				if powerOffSwitch.State() == powerOffActive {
 					op.onPowerOff()
