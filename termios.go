@@ -13,7 +13,7 @@ package main
       fflush(stdout);
       if( tcgetattr(0, &old) < 0 ) perror("tcsetattr()");
       old.c_lflag &= ~ICANON;
-      // old.c_lflag &= ~ECHO;
+      old.c_lflag &= ~ECHO;
       old.c_cc[VMIN] = 1;
       old.c_cc[VTIME] = 0;
       if( tcsetattr(0, TCSANOW, &old) < 0 ) perror("tcsetattr ICANON");
@@ -27,27 +27,25 @@ package main
   void clean_up(){
       old.c_lflag |= ICANON;
       old.c_lflag |= ECHO;
+      if(tcsetattr(0, TCSADRAIN, &old) < 0) perror("tcsetattr ~ICANON");
   }
 
 */
 import "C"
 
-import (
-	"fmt"
-)
-
 // For tests only
-func catchEscape(channelStop chan int) {
+func termiosStart(channelStop chan int) {
 	go func() {
-		key := C.getch()
-		if key == 27 {
-			fmt.Println("Esc pressed")
-			channelStop <- 1
-			stopPhone()
+		for {
+			key := C.getch()
+			if key == 27 {
+				channelStop <- 1
+				stopPhone()
+			}
 		}
 	}()
 }
 
-func catchEscapeCleanUp() {
+func termiosCleanUp() {
 	C.clean_up()
 }

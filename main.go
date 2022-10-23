@@ -4,7 +4,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/mmalessa/go_phone/orangepi"
 	"github.com/sirupsen/logrus"
@@ -31,8 +30,7 @@ func main() {
 		// stopPhone()
 	}()
 
-	catchEscape(channelStop)
-	defer catchEscapeCleanUp()
+	termiosStart(channelStop)
 
 	opi = orangepi.OrangePi{
 		ChannelHook: channelHook,
@@ -69,8 +67,8 @@ func main() {
 }
 
 func stopPhone() {
+	termiosCleanUp()
 	logrus.Info("GoPhone stop")
-	time.Sleep(100 * time.Millisecond)
 	opi.Stop()
 	os.Exit(0)
 }
