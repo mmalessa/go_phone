@@ -56,7 +56,7 @@ func (op *OrangePi) loop() {
 			}
 
 			if powerOffSwitch.State() == powerOffActive {
-				time.Sleep(2 * time.Second)
+				time.Sleep(500 * time.Millisecond)
 				if powerOffSwitch.State() == powerOffActive {
 					op.onPowerOff()
 				}
