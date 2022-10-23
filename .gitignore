@@ -1,4 +1,7 @@
+/.env
+/var/
 /dev/
 /go_phone
 /recordings/*
+/bin/*
 !/**/.gitkeep
