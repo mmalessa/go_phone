@@ -1,0 +1,16 @@
+# Contents of /etc/systemd/system/go_phone.service
+# systemctl enable go_phone.service
+# systemctl start go_phone.service
+
+[Unit]
+Description=Go Phone
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/bin/go_phone
+
+[Install]
+WantedBy=multi-user.target
+Alias=go_phone.service
