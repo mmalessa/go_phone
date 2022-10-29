@@ -30,8 +30,6 @@ func main() {
 		// stopPhone()
 	}()
 
-	termiosStart(channelStop)
-
 	opi = orangepi.OrangePi{
 		ChannelHook: channelHook,
 		ChannelStop: channelStop,
@@ -67,7 +65,6 @@ func main() {
 }
 
 func stopPhone() {
-	termiosCleanUp()
 	logrus.Info("GoPhone stop")
 	opi.Stop()
 	os.Exit(0)
