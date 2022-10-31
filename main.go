@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/mmalessa/go_phone/orangepi"
@@ -10,11 +11,18 @@ import (
 )
 
 var opi orangepi.OrangePi
+var storageDir string = "/media/usb/"
+var announcementFileName string = "announcement.mp3"
 
 func main() {
 	configLogs()
 
 	logrus.Info("GoPhone start")
+
+	storageDir = strings.TrimRight(storageDir, "/")
+	if err := checkStorageDirectory(); err != nil {
+		logrus.Fatal(err)
+	}
 
 	channelStop := make(chan int)
 	channelHook := make(chan bool)
@@ -27,7 +35,6 @@ func main() {
 		logrus.Debugf("SIGNAL RECEIVED: %s", sig)
 		channelHook <- false
 		channelStop <- 1
-		// stopPhone()
 	}()
 
 	opi = orangepi.OrangePi{
@@ -38,6 +45,16 @@ func main() {
 		panic(err)
 	}
 	defer opi.Stop()
+
+	// pha := phoneaudio.PhoneAudio{}
+	// go func() {
+	// 	<-channelHook
+	// 	pha.Stop()
+	// }()
+	// pha.Initialize()
+	// // loop
+	// pha.Start()
+	// defer pha.Terminate()
 
 	for {
 		select {
@@ -53,15 +70,6 @@ func main() {
 		}
 	}
 
-	// pha := phoneaudio.PhoneAudio{}
-	// go func() {
-	// 	<-channelHook
-	// 	pha.Stop()
-	// }()
-	// pha.Initialize()
-	// // loop
-	// pha.Start()
-	// defer pha.Terminate()
 }
 
 func stopPhone() {
