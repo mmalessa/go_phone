@@ -3,10 +3,12 @@ package main
 import (
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"syscall"
 
 	"github.com/mmalessa/go_phone/orangepi"
+	"github.com/mmalessa/go_phone/phoneaudio"
 	"github.com/sirupsen/logrus"
 )
 
@@ -46,14 +48,19 @@ func main() {
 	}
 	defer opi.Stop()
 
-	// pha := phoneaudio.PhoneAudio{}
+	pha := phoneaudio.PhoneAudio{
+		AnnouncementFile:    filepath.Join(storageDir, "announcement", announcementFileName),
+		RecordingsDirectory: filepath.Join(storageDir, "recordings"),
+	}
+	_ = pha
+
 	// go func() {
 	// 	<-channelHook
 	// 	pha.Stop()
 	// }()
 	// pha.Initialize()
 	// // loop
-	// pha.Start()
+	// err := pha.Start()
 	// defer pha.Terminate()
 
 	for {
