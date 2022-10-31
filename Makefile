@@ -69,22 +69,28 @@ arm-authorize: check-env ## (keygen &&) ssh-copy-id
 	@ssh-copy-id -f $(ARM_USER)@$(ARM_IP)
 
 # requirements
-# ARM - orange PI zero (2?) with ARMBIAN jammy
+# ARM - orange PI zero with ARMBIAN jammy
 arm-init: check-env ## Init orangePI
 	@echo "ARM $(ARM_IP) init all packages and configs"
-	@$(ARM_SSH) 'apt update && apt install -y portaudio19-dev'
+	# @$(ARM_SSH) 'apt update && apt install -y portaudio19-dev'
+	@scp "./linux/armbian/usb/usb-mount.sh" $(ARM_USER)@$(ARM_IP):/usr/bin/
+	@scp "./linux/armbian/usb/usb-mount@.service" $(ARM_USER)@$(ARM_IP):/etc/systemd/system/
+	@scp "./linux/armbian/usb/99-usb.rules" $(ARM_USER)@$(ARM_IP):/etc/udev/rules.d/
+	@$(ARM_SSH) 'chmod +x /usr/bin/usb-mount.sh && udevadm control --reload-rules && systemctl daemon-reload'
 	
 arm-send-bin: check-env ## Send binary and config to RPI
 	@echo "Send binary and config to RPI"
-	@# @ssh $(ARM_USER)@$(ARM_IP) 'if ! [ -d ~/bin ]; then mkdir ~/bin; fi'
+	@ssh $(ARM_USER)@$(ARM_IP) 'if ! [ -d ~/bin ]; then mkdir ~/bin; fi'
 	scp ./bin/$(APP_NAME) $(ARM_USER)@$(ARM_IP):/usr/bin/$(APP_NAME)
-	@## @ssh $(ARM_USER)@$(ARM_IP) 'rm ~/bin/config/0*.yaml -f'
-	@## scp ./config/* $(ARM_USER)@$(ARM_IP):~/bin/config/
 
 arm-enable-service: check-env ## Enable christmastree service on RPI
 	@echo "Enable $(APP_NAME) service on ARM $(ARM_IP)..."
 	@scp ./linux/armbian/$(APP_NAME).service $(ARM_USER)@$(ARM_IP):/etc/systemd/system/
 	@$(ARM_SSH) 'sudo systemctl enable $(APP_NAME).service'
+
+arm-disable-service: check-env ## Enable christmastree service on RPI
+	@echo "Disable $(APP_NAME) service on ARM $(ARM_IP)..."
+	@$(ARM_SSH) 'sudo systemctl disable $(APP_NAME).service'
 	
 arm-start-service: check-env ## Start christmastree service on RPI
 	@echo "Start $(APP_NAME) service on ARM $(ARM_IP)..."
