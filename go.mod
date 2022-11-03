@@ -1,11 +1,12 @@
 module github.com/mmalessa/go_phone
 
-go 1.13
+go 1.18
 
 require (
-	github.com/gordonklaus/portaudio v0.0.0-20220320131553-cc649ad523c1
+	github.com/bobertlo/go-mpg123 v0.0.0-20211210004329-c83f21a0fd39
+	github.com/gordonklaus/portaudio v0.0.0-20221027163845-7c3b689db3cc
 	github.com/mmalessa/orio v0.0.1
 	github.com/sirupsen/logrus v1.9.0
-	github.com/stianeikeland/go-rpio/v4 v4.6.0
-	golang.org/x/sys v0.1.0 // indirect
 )
+
+require golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect

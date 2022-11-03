@@ -26,6 +26,7 @@ FROM golang:1.18.1
 RUN apt-get update -y
 RUN apt-get install -y \
     portaudio19-dev \
+    libmpg123-dev \
     gccgo-go \
     pkg-config \
     build-essential \

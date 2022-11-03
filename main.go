@@ -13,8 +13,13 @@ import (
 )
 
 var opi orangepi.OrangePi
+
 var storageDir string = "/media/usb/"
-var announcementFileName string = "announcement.mp3"
+
+// var storageDir string = "/root/go_phone/" // tests only
+var greetingsFileName string = "greetings.mp3"
+var recordingsSubDir string = "recordings"
+var greetingsSubDir string = "greetings"
 
 func main() {
 	configLogs()
@@ -49,19 +54,11 @@ func main() {
 	defer opi.Stop()
 
 	pha := phoneaudio.PhoneAudio{
-		AnnouncementFile:    filepath.Join(storageDir, "announcement", announcementFileName),
-		RecordingsDirectory: filepath.Join(storageDir, "recordings"),
+		GreetingsFile:       filepath.Join(storageDir, greetingsSubDir, greetingsFileName),
+		RecordingsDirectory: filepath.Join(storageDir, recordingsSubDir),
 	}
-	_ = pha
-
-	// go func() {
-	// 	<-channelHook
-	// 	pha.Stop()
-	// }()
-	// pha.Initialize()
-	// // loop
-	// err := pha.Start()
-	// defer pha.Terminate()
+	pha.Initialize()
+	defer pha.Terminate()
 
 	for {
 		select {
@@ -69,6 +66,15 @@ func main() {
 			if hookCurrentState != hookState {
 				hookState = hookCurrentState
 				logrus.Debugf("Hook state: %t", hookState)
+				if hookState {
+					go func() {
+						if err := pha.Start(); err != nil {
+							logrus.Error(err)
+						}
+					}()
+				} else {
+					pha.Stop()
+				}
 			}
 		case chval := <-channelStop:
 			logrus.Debugf("PowerOff (%d)", chval)
@@ -76,7 +82,6 @@ func main() {
 			break
 		}
 	}
-
 }
 
 func stopPhone() {

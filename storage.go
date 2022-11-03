@@ -23,17 +23,17 @@ func checkStorageDirectory() error {
 	}
 	logrus.Debug("Pendrive is mounted")
 
-	aFullPath := filepath.Join(storageDir, "announcement", announcementFileName)
-	aExists, err := announcementExists(aFullPath)
+	aFullPath := filepath.Join(storageDir, greetingsSubDir, greetingsFileName)
+	aExists, err := greetingsExist(aFullPath)
 	if err != nil {
 		return err
 	}
 	if !aExists {
-		return fmt.Errorf("announcement file not found (%s)", aFullPath)
+		return fmt.Errorf("greetings file not found (%s)", aFullPath)
 	}
-	logrus.Debugf("Use announcement file: %s", aFullPath)
+	logrus.Debugf("Use greetings file: %s", aFullPath)
 
-	rFullPath := filepath.Join(storageDir, "recordings")
+	rFullPath := filepath.Join(storageDir, recordingsSubDir)
 	rExists, err := recordingsExists(rFullPath)
 	if err != nil {
 		return err
@@ -63,7 +63,7 @@ func isPendriveMounted() (bool, error) {
 	return false, nil
 }
 
-func announcementExists(absolutePath string) (bool, error) {
+func greetingsExist(absolutePath string) (bool, error) {
 	if _, err := os.Stat(absolutePath); err == nil {
 		return true, nil
 	} else if errors.Is(err, os.ErrNotExist) {

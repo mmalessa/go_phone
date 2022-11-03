@@ -27,6 +27,18 @@ init: ## Init environment (add arm support && build ws2811-builder)
 	@docker run --privileged --rm tonistiigi/binfmt --install arm64
 	@docker buildx build --platform $(ARM_PLATFORM) --tag $(APP_NAME)-builder --file .docker/images/app-builder/Dockerfile .
 
+go-modinit: # Run go mod init
+	@echo 'go mod init...'
+	@docker run --rm \
+		-v "$(PWD)":/usr/src/$(APP_NAME) \
+		-v "$(PWD)/var/go:/go" \
+		-v "$(PWD)/var/cache:/root/.cache" \
+		--name $(APP_NAME)-builder \
+		--platform $(ARM_PLATFORM) \
+  		-w /usr/src/$(APP_NAME) \
+		$(APP_NAME)-builder:latest \
+		rm var -rf && rm go.mod -f && rm go.sum -f && go mod init github.com/mmalessa/$(APP_NAME)
+
 go-modtidy: # Run go mod tidy
 	@echo 'go mod tidy...'
 	@docker run --rm \
@@ -72,7 +84,7 @@ arm-authorize: check-env ## (keygen &&) ssh-copy-id
 # ARM - orange PI zero with ARMBIAN jammy
 arm-init: check-env ## Init orangePI
 	@echo "ARM $(ARM_IP) init all packages and configs"
-	# @$(ARM_SSH) 'apt update && apt install -y portaudio19-dev'
+	# @$(ARM_SSH) 'apt update && apt install -y portaudio19-dev libmpg123-0'
 	@scp "./linux/armbian/usb/usb-mount.sh" $(ARM_USER)@$(ARM_IP):/usr/bin/
 	@scp "./linux/armbian/usb/usb-mount@.service" $(ARM_USER)@$(ARM_IP):/etc/systemd/system/
 	@scp "./linux/armbian/usb/99-usb.rules" $(ARM_USER)@$(ARM_IP):/etc/udev/rules.d/
