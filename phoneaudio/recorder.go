@@ -1,5 +1,10 @@
 package phoneaudio
 
+/*
+https://github.com/viert/lame
+https://github.com/mewkiz/flac
+*/
+
 import (
 	"context"
 	"encoding/binary"
