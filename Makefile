@@ -84,7 +84,7 @@ arm-authorize: check-env ## (keygen &&) ssh-copy-id
 # ARM - orange PI zero with ARMBIAN jammy
 arm-init: check-env ## Init orangePI
 	@echo "ARM $(ARM_IP) init all packages and configs"
-	# @$(ARM_SSH) 'apt update && apt install -y portaudio19-dev libmpg123-0'
+	# @$(ARM_SSH) 'apt update && apt install -y portaudio19-dev libmpg123-0 libmp3lame0'
 	@scp "./linux/armbian/usb/usb-mount.sh" $(ARM_USER)@$(ARM_IP):/usr/bin/
 	@scp "./linux/armbian/usb/usb-mount@.service" $(ARM_USER)@$(ARM_IP):/etc/systemd/system/
 	@scp "./linux/armbian/usb/99-usb.rules" $(ARM_USER)@$(ARM_IP):/etc/udev/rules.d/

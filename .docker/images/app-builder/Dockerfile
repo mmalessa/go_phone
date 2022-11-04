@@ -27,6 +27,7 @@ RUN apt-get update -y
 RUN apt-get install -y \
     portaudio19-dev \
     libmpg123-dev \
+    libmp3lame-dev \
     gccgo-go \
     pkg-config \
     build-essential \
