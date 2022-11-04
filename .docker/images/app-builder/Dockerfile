@@ -22,7 +22,7 @@
 
 # Stage 1 : Build a go image with the rpi_ws281x C library and the go wrapper
 
-FROM golang:1.18.1
+FROM golang:1.17.9
 RUN apt-get update -y
 RUN apt-get install -y \
     portaudio19-dev \
