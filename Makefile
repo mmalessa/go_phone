@@ -27,7 +27,7 @@ init: ## Init environment (add arm support && build ws2811-builder)
 	@docker run --privileged --rm tonistiigi/binfmt --install arm64
 	@docker buildx build --platform $(ARM_PLATFORM) --tag $(APP_NAME)-builder --file .docker/images/app-builder/Dockerfile .
 
-go-modinit: # Run go mod init
+go-mod-init: # Run go mod init
 	@echo 'go mod init...'
 	@docker run --rm \
 		-v "$(PWD)":/usr/src/$(APP_NAME) \
@@ -39,7 +39,7 @@ go-modinit: # Run go mod init
 		$(APP_NAME)-builder:latest \
 		rm var -rf && rm go.mod -f && rm go.sum -f && go mod init github.com/mmalessa/$(APP_NAME)
 
-go-modtidy: # Run go mod tidy
+go-mod-tidy: # Run go mod tidy
 	@echo 'go mod tidy...'
 	@docker run --rm \
 		-v "$(PWD)":/usr/src/$(APP_NAME) \
