@@ -1,6 +1,8 @@
 package phoneaudio
 
 import (
+	"path/filepath"
+
 	"github.com/gordonklaus/portaudio"
 )
 
@@ -31,23 +33,23 @@ func (pa *PhoneAudio) SetMaxRecordTime(mrt int) {
 
 func (pa *PhoneAudio) Start() error {
 	pa.active = true
-	// recordingFile, err := pa.findRecordingFileName()
-	// if err != nil {
-	// 	pa.BusyTone(6000)
-	// 	return err
-	// }
-
-	pa.RingingTone(2500)
-	if err := pa.Play(pa.GreetingsFile); err != nil {
-		pa.ErrorTone(2000)
+	recordingFile, err := pa.findRecordingFileName()
+	if err != nil {
+		pa.BusyTone(6000)
 		return err
 	}
 
-	pa.Beep(800)
-	// if err := pa.Record(recordingFile); err != nil {
-	// 	pa.BusyTone(6000)
+	// pa.RingingTone(2500)
+	// if err := pa.Play(pa.GreetingsFile); err != nil {
+	// 	pa.ErrorTone(2000)
 	// 	return err
 	// }
+
+	pa.Beep(800)
+	if err := pa.Record(recordingFile); err != nil {
+		pa.BusyTone(6000)
+		return err
+	}
 	pa.BusyTone(3000)
 	pa.active = false
 	return nil
@@ -58,5 +60,5 @@ func (pa *PhoneAudio) Stop() {
 }
 
 func (pa *PhoneAudio) findRecordingFileName() (string, error) {
-	return "recordings/0000.aif", nil
+	return filepath.Join(pa.RecordingsDirectory, "rec00001.wav"), nil
 }

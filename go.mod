@@ -7,7 +7,8 @@ require (
 	github.com/gordonklaus/portaudio v0.0.0-20221027163845-7c3b689db3cc
 	github.com/mmalessa/orio v0.0.1
 	github.com/sirupsen/logrus v1.9.0
-	github.com/viert/lame v0.0.0-20190823071122-49a063e7d5e6
+	github.com/viert/go-lame v0.0.0-20201108052322-bb552596b11d
+	github.com/zenwerk/go-wave v0.0.0-20190102022600-1be84bfef50c
 )
 
 require golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect

@@ -14,8 +14,10 @@ github.com/sirupsen/logrus v1.9.0/go.mod h1:naHLuLoDiP4jHNo9R0sCBMtWGeIprob74mVs
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/viert/lame v0.0.0-20190823071122-49a063e7d5e6 h1:1XPLOPnNgpmWkgV4Fkx3xZoNRqygHvFaXT+VQeZPs4I=
-github.com/viert/lame v0.0.0-20190823071122-49a063e7d5e6/go.mod h1:iTcgj2s0jGfKkwHeeiNeBBZyNsW+GaK+B8IzbSvOu2w=
+github.com/viert/go-lame v0.0.0-20201108052322-bb552596b11d h1:LptdD7GTUZeklomtW5vZ1AHwBvDBUCZ2Ftpaz7uEI7g=
+github.com/viert/go-lame v0.0.0-20201108052322-bb552596b11d/go.mod h1:EqTcYM7y4JlSfeTI47pmNu3EZQuCuLQefsQyg1Imlz8=
+github.com/zenwerk/go-wave v0.0.0-20190102022600-1be84bfef50c h1:DgZMI1Q1YuuaY69YbTu3arBk0qlnKWzv4YM2GmNC5tk=
+github.com/zenwerk/go-wave v0.0.0-20190102022600-1be84bfef50c/go.mod h1:qCAwkQ567FyudNBeV5wgzDEUsdEEcPgciHPmPlnIgXA=
 golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 h1:0A+M6Uqn+Eje4kHMK80dtF3JCXC4ykBgQG4Fe06QRhQ=
 golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
