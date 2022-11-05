@@ -106,7 +106,7 @@ func (pa *PhoneAudio) RecordFlac(fileName string) error {
 	return nil
 }
 
-// doesn't work :-(
+// doesn't work good :-(
 func (pa *PhoneAudio) RecordMp3(fileName string) error {
 	logrus.Infof("Recording MP3: %s", fileName)
 

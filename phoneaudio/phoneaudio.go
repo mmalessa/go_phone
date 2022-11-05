@@ -1,16 +1,15 @@
 package phoneaudio
 
 import (
-	"path/filepath"
-
 	"github.com/gordonklaus/portaudio"
 )
 
 var (
-	streamSampleRate  int = 44100 // don't change yet
-	numInputChannels  int = 1
-	numOutputChannels int = 1
-	maxRecordTime     int = 10 // seconds
+	streamSampleRate    int    = 44100 // don't change yet
+	numInputChannels    int    = 1
+	numOutputChannels   int    = 1
+	maxRecordTime       int    = 10 // seconds
+	recordingsExtension string = "wav"
 )
 
 type PhoneAudio struct {
@@ -57,8 +56,4 @@ func (pa *PhoneAudio) Start() error {
 
 func (pa *PhoneAudio) Stop() {
 	pa.active = false
-}
-
-func (pa *PhoneAudio) findRecordingFileName() (string, error) {
-	return filepath.Join(pa.RecordingsDirectory, "rec00001.wav"), nil
 }
