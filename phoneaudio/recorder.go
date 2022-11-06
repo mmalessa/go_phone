@@ -7,10 +7,10 @@ https://github.com/mewkiz/flac
 
 import (
 	"context"
-	"encoding/binary"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -29,8 +29,6 @@ func (pa *PhoneAudio) Record(fileName string) error {
 	switch {
 	case strings.HasSuffix(fileName, ".wav"):
 		return pa.recordWav(fileName)
-	case strings.HasSuffix(fileName, ".aiff"):
-		return pa.recordAiff(fileName)
 	case strings.HasSuffix(fileName, ".mp3"):
 		return pa.recordMp3(fileName)
 	default:
@@ -110,34 +108,37 @@ func (pa *PhoneAudio) recordMp3(fileName string) error {
 	if err := pa.recordWav(wavFile); err != nil {
 		return err
 	}
-	go pa.wav2mp3(wavFile, fileName)
+	go func() {
+		if err := pa.wav2mp3(wavFile, fileName); err != nil {
+			logrus.Error(err)
+		}
+	}()
 	return nil
 }
 
 func (pa *PhoneAudio) wav2mp3(wavFileName string, mp3FileName string) error {
-	logrus.Infof("Convert wav2mp3 %s->%s", wavFileName, mp3FileName)
-
-	wavShortName := pa.getShortFileName(wavFileName)
-	mp3ShortName := pa.getShortFileName(mp3FileName)
+	wavShortName := filepath.Base(wavFileName)
+	mp3ShortName := filepath.Base(mp3FileName)
+	logrus.Infof("Convert: %s->%s (assync)", wavShortName, mp3ShortName)
 
 	wavFile, err := os.OpenFile(wavFileName, os.O_RDONLY, 0555)
 	if err != nil {
 		logrus.Errorf("Cannot open file: %s", wavShortName)
-		logrus.Error(err)
+		return err
 	}
 	defer wavFile.Close()
 
 	mp3File, err := os.OpenFile(mp3FileName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
 	if err != nil {
 		logrus.Errorf("Cannot open file: %s", mp3ShortName)
-		logrus.Error(err)
+		return err
 	}
 	defer mp3File.Close()
 
 	wavHdr, err := lame.ReadWavHeader(wavFile)
 	if err != nil {
 		logrus.Errorf("Cannot read wav header: %s", wavShortName)
-		logrus.Error(err)
+		return err
 	}
 
 	wr, err := lame.NewWriter(mp3File)
@@ -146,154 +147,13 @@ func (pa *PhoneAudio) wav2mp3(wavFileName string, mp3FileName string) error {
 
 	if _, err := io.Copy(wr, wavFile); err != nil {
 		logrus.Errorf("Cannot io.Copy: %s->%s", wavShortName, mp3ShortName)
-		logrus.Error(err)
+		return err
 	}
 
-	logrus.Infof("Converted: %s->%s", wavShortName, mp3ShortName)
+	logrus.Infof("Converted: %s->%s (assync)", wavShortName, mp3ShortName)
 	if err := os.Remove(wavFileName); err != nil {
-		logrus.Error("Cannot remove wav file: 5s", wavShortName)
-		logrus.Error(err)
-	}
-	return nil
-}
-
-func (pa *PhoneAudio) getShortFileName(fileName string) string {
-	re := regexp.MustCompile(`/[^/]$`)
-	matches := re.FindStringSubmatch(fileName)
-	if len(matches) != 2 {
-		return fileName
-	}
-	return matches[1]
-}
-
-func (pa *PhoneAudio) recordAiff(fileName string) error {
-	logrus.Infof("Recording Aiff: %s", fileName)
-
-	f, err := os.Create(fileName)
-	if err != nil {
+		logrus.Error("Cannot remove wav file: 5s", wavFileName)
 		return err
 	}
-	logrus.Info("prepareAudioFile")
-	if err := pa.prepareAiffAudioFile(f); err != nil {
-		return err
-	}
-
-	nSamples := 0
-
-	defer func() {
-		logrus.Info("fillInMissingSizes")
-		// fill in missing sizes
-		totalBytes := 4 + 8 + 18 + 8 + 8 + 4*nSamples
-		if _, err = f.Seek(4, 0); err != nil {
-			panic(err)
-		}
-		if err := binary.Write(f, binary.BigEndian, int32(totalBytes)); err != nil {
-			panic(err)
-		}
-		if _, err := f.Seek(22, 0); err != nil {
-			panic(err)
-		}
-		if err := binary.Write(f, binary.BigEndian, int32(nSamples)); err != nil {
-			panic(err)
-		}
-		if _, err = f.Seek(42, 0); err != nil {
-			panic(err)
-		}
-		if err := binary.Write(f, binary.BigEndian, int32(4*nSamples+8)); err != nil {
-			panic(err)
-		}
-		if err := f.Close(); err != nil {
-			panic(err)
-		}
-	}()
-
-	logrus.Info("openDefaultStream")
-	in := make([]int32, 64)
-	stream, err := portaudio.OpenDefaultStream(numInputChannels, 0, float64(streamSampleRate), len(in), in)
-	if err != nil {
-		return err
-	}
-	defer stream.Close()
-
-	if err := stream.Start(); err != nil {
-		return err
-	}
-
-	// FIXME
-	ctxBg := context.Background()
-	ctx, cancel := context.WithTimeout(ctxBg, time.Duration(maxRecordTime)*time.Second)
-	defer cancel()
-	for {
-		if !pa.active {
-			return nil
-		}
-		if err := stream.Read(); err != nil {
-			return err
-		}
-		if err := binary.Write(f, binary.BigEndian, in); err != nil {
-			return err
-		}
-		nSamples += len(in)
-		select {
-		case <-ctx.Done():
-			return nil
-		default:
-		}
-	}
-	if err := stream.Stop(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (pa *PhoneAudio) prepareAiffAudioFile(f *os.File) error {
-	// form chunk
-	if _, err := f.WriteString("FORM"); err != nil {
-		return err
-	}
-	if err := binary.Write(f, binary.BigEndian, int32(0)); err != nil {
-		return err
-	}
-	if _, err := f.WriteString("AIFF"); err != nil {
-		return err
-	}
-
-	// common chunk
-	if _, err := f.WriteString("COMM"); err != nil {
-		return err
-	}
-	if err := binary.Write(f, binary.BigEndian, int32(18)); err != nil { //size
-		return err
-	}
-	if err := binary.Write(f, binary.BigEndian, int16(numInputChannels)); err != nil { //channels
-		return err
-	}
-	if err := binary.Write(f, binary.BigEndian, int32(0)); err != nil { //number of samples
-		return err
-	}
-	// FIXME - by parameter
-	if err := binary.Write(f, binary.BigEndian, int16(32)); err != nil { //bits per sample
-		return err
-	}
-	// FIXME - by parameter
-	if _, err := f.Write([]byte{0x40, 0x0e, 0xac, 0x44, 0, 0, 0, 0, 0, 0}); err != nil { //80-bit sample rate 44100
-		return err
-	}
-
-	// sound chunk
-	if _, err := f.WriteString("SSND"); err != nil {
-		return err
-	}
-	if err := binary.Write(f, binary.BigEndian, int32(0)); err != nil { //size
-		return err
-	}
-	if err := binary.Write(f, binary.BigEndian, int32(0)); err != nil { //offset
-		return err
-	}
-	if err := binary.Write(f, binary.BigEndian, int32(0)); err != nil { //block
-		return err
-	}
-
 	return nil
 }
