@@ -9,13 +9,15 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
+	"io"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/gordonklaus/portaudio"
 	"github.com/sirupsen/logrus"
-	"github.com/viert/go-lame"
+	"github.com/sunicy/go-lame"
 	wave "github.com/zenwerk/go-wave"
 	//"github.com/sunicy/go-lame"
 )
@@ -25,21 +27,19 @@ func (pa *PhoneAudio) Record(fileName string) error {
 		return nil
 	}
 	switch {
-	// case strings.HasSuffix(fileName, ".flac"):
-	// 	return pa.RecordFlac(fileName)
 	case strings.HasSuffix(fileName, ".wav"):
-		return pa.RecordWav(fileName)
+		return pa.recordWav(fileName)
 	case strings.HasSuffix(fileName, ".aiff"):
-		return pa.RecordAiff(fileName)
-	// case strings.HasSuffix(fileName, ".mp3"):
-	// 	return pa.RecordMp3(fileName)
+		return pa.recordAiff(fileName)
+	case strings.HasSuffix(fileName, ".mp3"):
+		return pa.recordMp3(fileName)
 	default:
 		return fmt.Errorf("unknown format for file: %s", fileName)
 	}
 }
 
-func (pa *PhoneAudio) RecordWav(fileName string) error {
-	logrus.Infof("Start recording (%s)", fileName)
+func (pa *PhoneAudio) recordWav(fileName string) error {
+	logrus.Infof("Start recording (%s), max time: %ds", fileName, maxRecordTime)
 
 	of, err := os.Create(fileName)
 	if err != nil {
@@ -77,13 +77,14 @@ func (pa *PhoneAudio) RecordWav(fileName string) error {
 	ctxBg := context.Background()
 	ctx, cancel := context.WithTimeout(ctxBg, time.Duration(maxRecordTime)*time.Second)
 	defer cancel()
+EndRecording:
 	for {
 		if !pa.active {
-			break
+			break EndRecording
 		}
 		select {
 		case <-ctx.Done():
-			break
+			break EndRecording
 		default:
 		}
 
@@ -101,67 +102,71 @@ func (pa *PhoneAudio) RecordWav(fileName string) error {
 	return nil
 }
 
-func (pa *PhoneAudio) RecordFlac(fileName string) error {
-	logrus.Infof("Recording FLAC: %s", fileName)
+func (pa *PhoneAudio) recordMp3(fileName string) error {
+	logrus.Info("Record MP3")
+	re := regexp.MustCompile(`.mp3$`)
+	wavFile := re.ReplaceAllString(fileName, ".wav")
+	logrus.Infof("Wav file: %s", wavFile)
+	if err := pa.recordWav(wavFile); err != nil {
+		return err
+	}
+	go pa.wav2mp3(wavFile, fileName)
 	return nil
 }
 
-// doesn't work good :-(
-func (pa *PhoneAudio) RecordMp3(fileName string) error {
-	logrus.Infof("Recording MP3: %s", fileName)
+func (pa *PhoneAudio) wav2mp3(wavFileName string, mp3FileName string) error {
+	logrus.Infof("Convert wav2mp3 %s->%s", wavFileName, mp3FileName)
 
-	of, err := os.Create(fileName)
+	wavShortName := pa.getShortFileName(wavFileName)
+	mp3ShortName := pa.getShortFileName(mp3FileName)
+
+	wavFile, err := os.OpenFile(wavFileName, os.O_RDONLY, 0555)
 	if err != nil {
-		return err
+		logrus.Errorf("Cannot open file: %s", wavShortName)
+		logrus.Error(err)
 	}
-	defer of.Close()
+	defer wavFile.Close()
 
-	enc := lame.NewEncoder(of)
-	enc.SetInSamplerate(streamSampleRate)
-	enc.SetHighPassFrequency(10000)
-	enc.SetLowPassFrequency(100)
-	enc.SetNumChannels(numOutputChannels)
-	enc.SetQuality(5)
-	defer enc.Close()
-
-	in := make([]int32, 1024)
-	stream, err := portaudio.OpenDefaultStream(numInputChannels, 0, float64(streamSampleRate), len(in), in)
+	mp3File, err := os.OpenFile(mp3FileName, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
 	if err != nil {
-		return err
+		logrus.Errorf("Cannot open file: %s", mp3ShortName)
+		logrus.Error(err)
 	}
-	defer stream.Close()
+	defer mp3File.Close()
 
-	if err := stream.Start(); err != nil {
-		return err
-	}
-	defer stream.Stop()
-
-	ctxBg := context.Background()
-	ctx, cancel := context.WithTimeout(ctxBg, time.Duration(maxRecordTime)*time.Second)
-	defer cancel()
-	for {
-		if !pa.active {
-			return nil
-		}
-		select {
-		case <-ctx.Done():
-			return nil
-		default:
-		}
-
-		if err := stream.Read(); err != nil {
-			return err
-		}
-
-		if err := binary.Write(enc, binary.BigEndian, in); err != nil {
-			return err
-		}
+	wavHdr, err := lame.ReadWavHeader(wavFile)
+	if err != nil {
+		logrus.Errorf("Cannot read wav header: %s", wavShortName)
+		logrus.Error(err)
 	}
 
+	wr, err := lame.NewWriter(mp3File)
+	wr.EncodeOptions = wavHdr.ToEncodeOptions()
+	defer wr.Close()
+
+	if _, err := io.Copy(wr, wavFile); err != nil {
+		logrus.Errorf("Cannot io.Copy: %s->%s", wavShortName, mp3ShortName)
+		logrus.Error(err)
+	}
+
+	logrus.Infof("Converted: %s->%s", wavShortName, mp3ShortName)
+	if err := os.Remove(wavFileName); err != nil {
+		logrus.Error("Cannot remove wav file: 5s", wavShortName)
+		logrus.Error(err)
+	}
 	return nil
 }
 
-func (pa *PhoneAudio) RecordAiff(fileName string) error {
+func (pa *PhoneAudio) getShortFileName(fileName string) string {
+	re := regexp.MustCompile(`/[^/]$`)
+	matches := re.FindStringSubmatch(fileName)
+	if len(matches) != 2 {
+		return fileName
+	}
+	return matches[1]
+}
+
+func (pa *PhoneAudio) recordAiff(fileName string) error {
 	logrus.Infof("Recording Aiff: %s", fileName)
 
 	f, err := os.Create(fileName)
@@ -169,7 +174,7 @@ func (pa *PhoneAudio) RecordAiff(fileName string) error {
 		return err
 	}
 	logrus.Info("prepareAudioFile")
-	if err := pa.prepareAudioFile(f); err != nil {
+	if err := pa.prepareAiffAudioFile(f); err != nil {
 		return err
 	}
 
@@ -242,7 +247,7 @@ func (pa *PhoneAudio) RecordAiff(fileName string) error {
 	return nil
 }
 
-func (pa *PhoneAudio) prepareAudioFile(f *os.File) error {
+func (pa *PhoneAudio) prepareAiffAudioFile(f *os.File) error {
 	// form chunk
 	if _, err := f.WriteString("FORM"); err != nil {
 		return err

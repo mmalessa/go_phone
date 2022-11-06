@@ -7,7 +7,7 @@ require (
 	github.com/gordonklaus/portaudio v0.0.0-20221027163845-7c3b689db3cc
 	github.com/mmalessa/orio v0.0.1
 	github.com/sirupsen/logrus v1.9.0
-	github.com/viert/go-lame v0.0.0-20201108052322-bb552596b11d
+	github.com/sunicy/go-lame v0.0.0-20200422031049-1c192eaafa39
 	github.com/zenwerk/go-wave v0.0.0-20190102022600-1be84bfef50c
 )
 

@@ -6,11 +6,10 @@ import (
 )
 
 var (
-	streamSampleRate    int    = 44100 // don't change yet
-	numInputChannels    int    = 1
-	numOutputChannels   int    = 1
-	maxRecordTime       int    = 10 // seconds
-	recordingsExtension string = "wav"
+	streamSampleRate  int = 44100 // don't change yet
+	numInputChannels  int = 1
+	numOutputChannels int = 1
+	maxRecordTime     int = 180 // seconds
 )
 
 type PhoneAudio struct {
@@ -39,7 +38,7 @@ func (pa *PhoneAudio) Start() error {
 		return err
 	}
 
-	// pa.RingingTone(2500)
+	pa.RingingTone(500)
 	// if err := pa.Play(pa.GreetingsFile); err != nil {
 	// 	pa.ErrorTone(2000)
 	// 	return err
@@ -50,6 +49,7 @@ func (pa *PhoneAudio) Start() error {
 		pa.BusyTone(6000)
 		return err
 	}
+
 	pa.BusyTone(3000)
 	pa.active = false
 	return nil

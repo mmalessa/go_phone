@@ -4,7 +4,6 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"strings"
 	"syscall"
 
 	"github.com/mmalessa/go_phone/filemanager"
@@ -15,22 +14,23 @@ import (
 
 var opi orangepi.OrangePi
 
-var storageDir string = "/media/usb/"
-
-// var storageDir string = "/root/go_phone/" // tests only
+// var storageDir string = "/media/usb/"
+var storageDir string = "/root/go_phone/" // tests only
 var greetingsFileName string = "greetings.mp3"
 var recordingsSubDir string = "recordings"
+var recordingsFileExtension string = "mp3"
 var greetingsSubDir string = "greetings"
+var maxRecordTime int = 60
 
 func main() {
 	configLogs()
 
 	logrus.Info("GoPhone start")
 
-	storageDir = strings.TrimRight(storageDir, "/")
-	if err := checkStorageDirectory(); err != nil {
-		logrus.Fatal(err)
-	}
+	// storageDir = strings.TrimRight(storageDir, "/")
+	// if err := checkStorageDirectory(); err != nil {
+	// 	logrus.Fatal(err)
+	// }
 
 	channelStop := make(chan int)
 	channelHook := make(chan bool)
@@ -58,9 +58,11 @@ func main() {
 		GreetingsFile: filepath.Join(storageDir, greetingsSubDir, greetingsFileName),
 		FileManager: filemanager.FileManager{
 			RecordingsDirectory: filepath.Join(storageDir, recordingsSubDir),
-			RecordingsExtention: "wav",
+			RecordingsExtention: recordingsFileExtension,
 		},
 	}
+	pha.SetMaxRecordTime(maxRecordTime)
+
 	pha.Initialize()
 	defer pha.Terminate()
 

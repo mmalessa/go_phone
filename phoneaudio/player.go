@@ -42,12 +42,49 @@ func (pa *PhoneAudio) Play(fileName string) error {
 		return pa.playMp3(fileName)
 	case strings.HasSuffix(fileName, ".aiff"):
 		return pa.playAiff(fileName)
+	// case strings.HasSuffix(fileName, ".wav"):
+	// 	return pa.playWav(fileName)
 	default:
 		return fmt.Errorf("unknown format for file: %s", fileName)
 	}
 
 	return nil
 }
+
+// func (pa *PhoneAudio) playWav(fileName string) error {
+// 	logrus.Info("Play Wav")
+// 	waveReader, err := wave.NewReader(fileName)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	portaudio.Initialize()
+// 	defer portaudio.Terminate()
+// 	out := make([]byte, 1024)
+// 	stream, err := portaudio.OpenDefaultStream(0, numOutputChannels, float64(streamSampleRate), len(out), &out)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	defer stream.Close()
+// 	if err := stream.Start(); err != nil {
+// 		return err
+// 	}
+// 	defer stream.Stop()
+
+// 	for {
+// 		if !pa.active {
+// 			break
+// 		}
+// 		out, err = waveReader.ReadRawSample()
+// 		if err != nil {
+// 			return err
+// 		}
+// 		if err := stream.Write(); err != nil {
+// 			return err
+// 		}
+// 	}
+// 	return nil
+// }
 
 func (pa *PhoneAudio) playMp3(fileName string) error {
 	decoder, err := mpg123.NewDecoder("")
@@ -73,7 +110,6 @@ func (pa *PhoneAudio) playMp3(fileName string) error {
 		return err
 	}
 	defer stream.Close()
-
 	if err := stream.Start(); err != nil {
 		return err
 	}
