@@ -39,10 +39,10 @@ func (pa *PhoneAudio) Start() error {
 	}
 
 	pa.RingingTone(500)
-	// if err := pa.Play(pa.GreetingsFile); err != nil {
-	// 	pa.ErrorTone(2000)
-	// 	return err
-	// }
+	if err := pa.Play(pa.GreetingsFile); err != nil {
+		pa.ErrorTone(2000)
+		return err
+	}
 
 	pa.Beep(800)
 	if err := pa.Record(recordingFile); err != nil {
