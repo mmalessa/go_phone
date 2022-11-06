@@ -93,7 +93,7 @@ func (fm *FileManager) getMaxFileInt(dirInt int) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	re := regexp.MustCompile(`rec-[0-9]{3}([0-9]{3}).` + fm.RecordingsExtention)
+	re := regexp.MustCompile(`rec-[0-9]{3}([0-9]{3}).[a-z]+?`)
 	maxFileInt := 0
 	for _, file := range files {
 		matches := re.FindStringSubmatch(file.Name())
