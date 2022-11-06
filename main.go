@@ -7,6 +7,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/mmalessa/go_phone/filemanager"
 	"github.com/mmalessa/go_phone/orangepi"
 	"github.com/mmalessa/go_phone/phoneaudio"
 	"github.com/sirupsen/logrus"
@@ -54,8 +55,11 @@ func main() {
 	defer opi.Stop()
 
 	pha := phoneaudio.PhoneAudio{
-		GreetingsFile:       filepath.Join(storageDir, greetingsSubDir, greetingsFileName),
-		RecordingsDirectory: filepath.Join(storageDir, recordingsSubDir),
+		GreetingsFile: filepath.Join(storageDir, greetingsSubDir, greetingsFileName),
+		FileManager: filemanager.FileManager{
+			RecordingsDirectory: filepath.Join(storageDir, recordingsSubDir),
+			RecordingsExtention: "wav",
+		},
 	}
 	pha.Initialize()
 	defer pha.Terminate()

@@ -63,7 +63,7 @@ func (pa *PhoneAudio) playMp3(fileName string) error {
 	rate, channels, _ := decoder.GetFormat()
 	logrus.Infof("Play MP3 ENC_SIGNED_16, Sample Rate: %d, Channels: %d", rate, channels)
 	decoder.FormatNone()
-	decoder.Format(rate, channels, mpg123.ENC_SIGNED_16)
+	decoder.Format(rate, channels, int(mpg123.ENC_SIGNED_16))
 
 	portaudio.Initialize()
 	defer portaudio.Terminate()

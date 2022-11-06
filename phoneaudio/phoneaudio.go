@@ -2,6 +2,7 @@ package phoneaudio
 
 import (
 	"github.com/gordonklaus/portaudio"
+	"github.com/mmalessa/go_phone/filemanager"
 )
 
 var (
@@ -13,9 +14,9 @@ var (
 )
 
 type PhoneAudio struct {
-	GreetingsFile       string
-	RecordingsDirectory string
-	active              bool
+	GreetingsFile string
+	FileManager   filemanager.FileManager
+	active        bool
 }
 
 func (pa *PhoneAudio) Initialize() error {
@@ -32,7 +33,7 @@ func (pa *PhoneAudio) SetMaxRecordTime(mrt int) {
 
 func (pa *PhoneAudio) Start() error {
 	pa.active = true
-	recordingFile, err := pa.findRecordingFileName()
+	recordingFile, err := pa.FileManager.FindRecordingFileName()
 	if err != nil {
 		pa.BusyTone(6000)
 		return err

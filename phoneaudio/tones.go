@@ -27,7 +27,7 @@ func (pa *PhoneAudio) RingingTone(play_time int) error {
 }
 
 func (pa *PhoneAudio) Beep(tone_time int) error {
-	s := newStereoSine(1000, 1000, float64(streamSampleRate), 0.07)
+	s := newStereoSine(1000, 1000, float64(streamSampleRate), 0.1)
 	defer s.Close()
 	pause_time := 200
 	return pa.playTone(s, tone_time+pause_time, tone_time, pause_time)
