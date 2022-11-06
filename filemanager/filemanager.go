@@ -97,6 +97,9 @@ func (fm *FileManager) getMaxFileInt(dirInt int) (int, error) {
 	maxFileInt := 0
 	for _, file := range files {
 		matches := re.FindStringSubmatch(file.Name())
+		if len(matches) < 2 {
+			continue
+		}
 		fileInt, err := strconv.Atoi(matches[1])
 		if err != nil {
 			return 0, err
