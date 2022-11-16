@@ -54,7 +54,7 @@ func (pa *PhoneAudio) recordWav(fileName string) error {
 
 	waveWriter, err := wave.NewWriter(param)
 	if err != nil {
-		logrus.Debug("error on NewWriter")
+		logrus.Debug("Error on NewWriter")
 		return err
 	}
 	defer waveWriter.Close()
@@ -80,21 +80,21 @@ EndRecording:
 		if !pa.active {
 			break EndRecording
 		}
-		select {
-		case <-ctx.Done():
-			break EndRecording
-		default:
-		}
-
 		if err := stream.Read(); err != nil {
-			logrus.Debug("error on stream read")
+			logrus.Debug("Error on stream read")
 			return err
 		}
 		if _, err := waveWriter.WriteSample16([]int16(in)); err != nil {
-			logrus.Debug("error on writer")
+			logrus.Debug("Error on writer")
 			return err
 		}
 
+		select {
+		case <-ctx.Done():
+			logrus.Debug("Time is up")
+			break EndRecording
+		default:
+		}
 	}
 	logrus.Infof("End recording")
 	return nil

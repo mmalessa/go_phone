@@ -20,7 +20,7 @@ var greetingsFileName string = "greetings.mp3"
 var recordingsSubDir string = "recordings"
 var recordingsFileExtension string = "mp3"
 var greetingsSubDir string = "greetings"
-var maxRecordTime int = 60
+var maxRecordTime int = 10
 
 func main() {
 	configLogs()

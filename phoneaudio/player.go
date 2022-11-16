@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/bobertlo/go-mpg123/mpg123"
 	"github.com/gordonklaus/portaudio"
@@ -54,15 +55,15 @@ func (pa *PhoneAudio) playMp3(fileName string) error {
 	defer decoder.Close()
 
 	// get audio format information
-	rate, channels, _ := decoder.GetFormat()
-	logrus.Infof("Play MP3 ENC_SIGNED_16, Sample Rate: %d, Channels: %d", rate, channels)
+	rate, channels, encoding := decoder.GetFormat()
+	logrus.Infof("Play MP3, Sample Rate: %d, Channels: %d, Encoding %d", rate, channels, encoding)
 	decoder.FormatNone()
-	decoder.Format(rate, channels, int(mpg123.ENC_SIGNED_16))
+	decoder.Format(rate, channels, int(encoding))
 
 	portaudio.Initialize()
 	defer portaudio.Terminate()
 	out := make([]int16, 8192)
-	stream, err := portaudio.OpenDefaultStream(0, channels, float64(rate), len(out), &out)
+	stream, err := portaudio.OpenDefaultStream(0, channels, float64(rate), len(out)*2, &out)
 	if err != nil {
 		return err
 	}
@@ -77,17 +78,21 @@ func (pa *PhoneAudio) playMp3(fileName string) error {
 			break
 		}
 		audio := make([]byte, 2*len(out))
-		_, err = decoder.Read(audio)
-		if err == mpg123.EOF {
+		_, decoderErr := decoder.Read(audio)
+		if decoderErr == mpg123.EOF {
+			time.Sleep(1 * time.Second) // Without it, it cuts the ending
 			break
 		}
-		if err != nil {
-			return err
+		if decoderErr != nil {
+			logrus.Debug("Error on decoder.Read")
+			return decoderErr
 		}
-		if err := binary.Read(bytes.NewBuffer(audio), binary.LittleEndian, out); err != nil {
+		if err := binary.Read(bytes.NewBuffer(audio), binary.LittleEndian, &out); err != nil {
+			logrus.Debug("Error on binary.Read")
 			return err
 		}
 		if err := stream.Write(); err != nil {
+			logrus.Debug("Error on stream.Write")
 			return err
 		}
 	}

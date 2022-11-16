@@ -18,7 +18,7 @@ help: ## Outputs this help screen
 check-env:
 	@if ! [ -f .env ]; then echo ".env - file not found" && return 1; fi
 
-init: ## Init environment (add arm support && build ws2811-builder)
+init64: ## Init environment (arm64)
 	# https://askubuntu.com/questions/1339558/cant-build-dockerfile-for-arm64-due-to-libc-bin-segmentation-fault
 	# @docker run --rm --privileged docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64
 	# WORKAROUND
@@ -26,6 +26,13 @@ init: ## Init environment (add arm support && build ws2811-builder)
 	@docker run --privileged --rm tonistiigi/binfmt --uninstall qemu-*
 	@docker run --privileged --rm tonistiigi/binfmt --install arm64
 	@docker buildx build --platform $(ARM_PLATFORM) --tag $(APP_NAME)-builder --file .docker/images/app-builder/Dockerfile .
+
+init7: ## Init environment (arm/v7)
+	@docker run --rm --privileged docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64
+	@docker buildx build --platform $(ARM_PLATFORM) --tag $(APP_NAME)-builder --file .docker/images/app-builder/Dockerfile .
+
+init: init7 ## Init environment (alias)
+
 
 go-mod-init: # Run go mod init
 	@echo 'go mod init...'
@@ -84,7 +91,7 @@ arm-authorize: check-env ## (keygen &&) ssh-copy-id
 # ARM - orange PI zero with ARMBIAN jammy
 arm-init: check-env ## Init orangePI
 	@echo "ARM $(ARM_IP) init all packages and configs"
-	# @$(ARM_SSH) 'apt update && apt install -y portaudio19-dev libmpg123-0 libmp3lame0'
+	@$(ARM_SSH) 'apt update && apt install -y portaudio19-dev libmpg123-0 libmp3lame0'
 	@scp "./linux/armbian/usb/usb-mount.sh" $(ARM_USER)@$(ARM_IP):/usr/bin/
 	@scp "./linux/armbian/usb/usb-mount@.service" $(ARM_USER)@$(ARM_IP):/etc/systemd/system/
 	@scp "./linux/armbian/usb/99-usb.rules" $(ARM_USER)@$(ARM_IP):/etc/udev/rules.d/

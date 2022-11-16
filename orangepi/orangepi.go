@@ -13,12 +13,12 @@ type OrangePi struct {
 
 var (
 	stateActive      = false
-	ledRed           = orio.Pin(orio.PH7)
-	ledGreen         = orio.Pin(orio.PH8)
-	hookSwitch       = orio.Pin(orio.PH6)
+	ledRed           = orio.Pin(orio.PA15) // PH7 PA15
+	ledGreen         = orio.Pin(orio.PA16) // PH8 PA16
+	hookSwitch       = orio.Pin(orio.PA14) // PH6 PA14
 	hookOnState      = orio.High
 	hookCurrentState = hookOnState
-	powerOffSwitch   = orio.Pin(orio.PC8)
+	powerOffSwitch   = orio.Pin(orio.PA3) // PC8 PA3
 	powerOffActive   = orio.Low
 )
 
