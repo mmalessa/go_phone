@@ -96,6 +96,8 @@ arm-init: check-env ## Init orangePI
 	@scp "./linux/armbian/usb/usb-mount@.service" $(ARM_USER)@$(ARM_IP):/etc/systemd/system/
 	@scp "./linux/armbian/usb/99-usb.rules" $(ARM_USER)@$(ARM_IP):/etc/udev/rules.d/
 	@$(ARM_SSH) 'chmod +x /usr/bin/usb-mount.sh && udevadm control --reload-rules && systemctl daemon-reload'
+	@scp "./linux/armbian/dts/powerinfo.dts" $(ARM_USER)@$(ARM_IP):/root/
+	@$(ARM_SSH) 'armbian-add-overlay /root/powerinfo.dts'
 	
 arm-send-bin: check-env ## Send binary and config to RPI
 	@echo "Send binary and config to RPI"
