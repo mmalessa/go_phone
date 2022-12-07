@@ -10,7 +10,7 @@ import (
 
 // https://en.wikipedia.org/wiki/Busy_signal
 func (pa *PhoneAudio) BusyTone(play_time int) error {
-	s := newStereoSine(425, 425, float64(streamSampleRate), 1)
+	s := newStereoSine(425, 425, float64(streamSampleRate), 0.5)
 	defer s.Close()
 	tone_time := 500
 	pause_time := 500
@@ -19,7 +19,7 @@ func (pa *PhoneAudio) BusyTone(play_time int) error {
 
 // https://en.wikipedia.org/wiki/Ringing_tone
 func (pa *PhoneAudio) RingingTone(play_time int) error {
-	s := newStereoSine(425, 425, float64(streamSampleRate), 1)
+	s := newStereoSine(425, 425, float64(streamSampleRate), 0.5)
 	defer s.Close()
 	tone_time := 1000
 	pause_time := 2000
@@ -27,14 +27,14 @@ func (pa *PhoneAudio) RingingTone(play_time int) error {
 }
 
 func (pa *PhoneAudio) Beep(tone_time int) error {
-	s := newStereoSine(1000, 1000, float64(streamSampleRate), 0.6)
+	s := newStereoSine(1000, 1000, float64(streamSampleRate), 0.2)
 	defer s.Close()
 	pause_time := 200
 	return pa.playTone(s, tone_time+pause_time, tone_time, pause_time)
 }
 
 func (pa *PhoneAudio) ErrorTone(tone_time int) error {
-	s := newStereoSine(550, 580, float64(streamSampleRate), 1)
+	s := newStereoSine(550, 580, float64(streamSampleRate), 0.5)
 	defer s.Close()
 	return pa.playTone(s, tone_time, 250, 250)
 }
