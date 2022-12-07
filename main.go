@@ -18,9 +18,9 @@ var opi orangepi.OrangePi
 var storageDir string = "/media/usb/" //var storageDir string = "/root/go_phone/" // tests only
 var greetingsFileName string = "greetings.mp3"
 var recordingsSubDir string = "recordings"
-var recordingsFileExtension string = "mp3"
+var recordingsFileExtension string = "wav"
 var greetingsSubDir string = "greetings"
-var maxRecordTime int = 10
+var maxRecordTime int = 120
 
 func main() {
 	configLogs()

@@ -6,7 +6,8 @@ import (
 )
 
 var (
-	streamSampleRate  int = 44100 // don't change yet
+	// streamSampleRate  int = 44100
+	streamSampleRate  int = 22050
 	numInputChannels  int = 1
 	numOutputChannels int = 1
 	maxRecordTime     int = 180 // seconds
@@ -51,6 +52,7 @@ func (pa *PhoneAudio) Start() error {
 	}
 
 	pa.BusyTone(3000)
+
 	pa.active = false
 	return nil
 }

@@ -19,7 +19,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/sunicy/go-lame"
 	wave "github.com/zenwerk/go-wave"
-	//"github.com/sunicy/go-lame"
 )
 
 func (pa *PhoneAudio) Record(fileName string) error {
@@ -49,7 +48,8 @@ func (pa *PhoneAudio) recordWav(fileName string) error {
 		Out:           of,
 		Channel:       numInputChannels,
 		SampleRate:    streamSampleRate,
-		BitsPerSample: 16, // 8/16, change to WriteSample16()
+		BitsPerSample: 16, // -> WriteSample16()
+		// BitsPerSample: 8, // -> WriteSample8()
 	}
 
 	waveWriter, err := wave.NewWriter(param)
@@ -59,7 +59,8 @@ func (pa *PhoneAudio) recordWav(fileName string) error {
 	}
 	defer waveWriter.Close()
 
-	in := make([]int16, 1024)
+	in := make([]int16, 1024) // <- WriteSample16
+	// in := make([]uint8, 1024) // <-- WriteSample8
 	portaudio.Initialize()
 	stream, err := portaudio.OpenDefaultStream(numInputChannels, 0, float64(streamSampleRate), len(in), in)
 	if err != nil {
@@ -85,6 +86,7 @@ EndRecording:
 			return err
 		}
 		if _, err := waveWriter.WriteSample16([]int16(in)); err != nil {
+			// if _, err := waveWriter.WriteSample8([]uint8(in)); err != nil {
 			logrus.Debug("Error on writer")
 			return err
 		}
@@ -92,6 +94,7 @@ EndRecording:
 		select {
 		case <-ctx.Done():
 			logrus.Debug("Time is up")
+			// TODO play endles busy tone
 			break EndRecording
 		default:
 		}
