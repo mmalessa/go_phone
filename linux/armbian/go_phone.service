@@ -13,8 +13,8 @@ Type=simple
 RestartSec=5
 Restart=always
 ExecStart=/usr/bin/go_phone
-StandardOutput=append:/var/log/go_phone/go_phone.log
-StandardError=append:/var/log/go_phone/go_phone.log
+# StandardOutput=append:/var/log/go_phone/go_phone.log
+# StandardError=append:/var/log/go_phone/go_phone.log
 SendSIGHUP=yes
 
 [Install]

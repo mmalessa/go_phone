@@ -106,7 +106,7 @@ arm-init: check-env ## Init orangePI
 	@$(MAKE) arm-init-apt
 	@$(MAKE) arm-init-udev
 	@$(MAKE) arm-init-dts
-	@$(MAKE) arm-init-logrotate
+	# @$(MAKE) arm-init-logrotate
 
 .PHONY: arm-init-apt
 arm-init-apt:
