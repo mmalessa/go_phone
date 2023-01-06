@@ -1,0 +1,33 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "xunlong,orangepi-zero\0allwinner,sun8i-h2-plus";
+
+    fragment@0 {
+        target = <&pio>;
+        __overlay__ {
+            gpio_button_0: gpio_button_0 {
+                pins = "PA12";
+                function = "gpio_in";
+                bias-pull-up;
+            };
+        };  
+    };
+    fragment@1 {
+		target-path = "/";
+		__overlay__ {
+			gpio-keys-user {
+				compatible = "gpio-keys";
+				pinctrl-names = "default";
+				pinctrl-0 = <&gpio_button_0>;
+
+				power_button {
+					label = "GPIO Key Power";
+					linux,code = <116>; /* <KEY_POWER> /usr/include/linux/input-event-codes.h */
+					gpios = <&pio 0 12 1>; /* PA 12 GPIO_ACTIVE_LOW */
+				};
+			};
+		};
+	};
+};

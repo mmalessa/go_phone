@@ -2,17 +2,16 @@
 /plugin/;
 
 / {
-        compatible = "xunlong,orangepi-zero\0allwinner,sun8i-h2-plus";
+    compatible = "xunlong,orangepi-zero\0allwinner,sun8i-h2-plus";
 
-        fragment@0 {
-                target-path = "/leds";
-                __overlay__ {
-                        powerinfo: led {
-                                label = "orangepi:green:powerinfo";
-                                gpios = <&pio 0 6 0>;
-                                default-state = "on";
-                        };
-                };
+    fragment@0 {
+        target-path = "/leds";
+        __overlay__ {
+            powerinfo: led {
+                label = "orangepi:green:powerinfo";
+                gpios = <&pio 0 6 0>;
+                default-state = "on";
+            };
         };
-
+    };
 };
