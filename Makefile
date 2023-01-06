@@ -137,7 +137,7 @@ arm-send-bin: check-env ## Send binary and config to RPI
 .PHONY: arm-enable-service
 arm-enable-service: check-env ## Enable christmastree service on RPI
 	@echo "Enable $(APP_NAME) service on ARM $(ARM_IP)..."
-	@scp ./linux/armbian/$(APP_NAME).service $(ARM_USER)@$(ARM_IP):/etc/systemd/system/
+	@scp ./linux/armbian/$(APP_NAME).service $(ARM_USER)@$(ARM_IP):/lib/systemd/system/
 	@$(ARM_SSH) 'sudo systemctl enable $(APP_NAME).service'
 
 .PHONY: arm-disable-service
