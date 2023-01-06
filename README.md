@@ -3,36 +3,33 @@ Private, do not use!
 
 ## Kickstart
 
+### Prepare Orengepi Zero
+`armbian-config` -> System -> Hardware -> [*] analog codec
+`armbian-config` -> Network -> Hotspot -> wlan0
+
 ### Do it once
 - `cp .env.dict .env` ...and customize
+- 
 ### Some make
 - `make init` to init PC environment
 - `make go-build` to compile code
 - `make arm-authorize` to copy ssh key to ARM (login without password)
+- `make arm-init` to "init" some stuff in ARM
 - `make arm-install` to copy binary file to ARM
-
-### If you need RPI console (ssh)
-
 - `make rpi-console`
 
-## Notes
-In `/usr/share/alsa/alsa.conf`
-Change to 1 or 2
 
-```
-defaults.ctl.card 1
-defaults.pcm.card 1
-defaults.pcm.device 0
-defaults.pcm.subdevice 0
-```
+## Some notes
 
-`speaker-test`
+
 
 ### dts
 ```
 linux,code = <79>; /* KEY_KP1, see /usr/include/linux/input-event-codes.h */
 gpios = <&pio 4 11 0>; /* PE11 GPIO_ACTIVE_HIGH */
 ```
+
+`apt install input-utils`
 ```sh
 lsinput
 /dev/input/event0
