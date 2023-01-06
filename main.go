@@ -20,7 +20,7 @@ var greetingsFileName string = "greetings.mp3"
 var recordingsSubDir string = "recordings"
 var recordingsFileExtension string = "wav"
 var greetingsSubDir string = "greetings"
-var maxRecordTime int = 120
+var maxRecordTime int = 300 // seconds
 
 func main() {
 	configLogs()
@@ -32,28 +32,30 @@ func main() {
 		logrus.Fatal(err)
 	}
 
-	channelStop := make(chan int)
-	channelHook := make(chan bool)
+	channelStop := make(chan bool)
+	channelHookState := make(chan bool)
 	var hookState bool = false
 
+	// graceful shutdown
 	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGKILL, syscall.SIGSTKFLT)
 	go func() {
 		sig := <-sigs
 		logrus.Debugf("SIGNAL RECEIVED: %s", sig)
-		channelHook <- false
-		channelStop <- 1
+		channelHookState <- false
+		channelStop <- true
 	}()
 
+	// orangepi
 	opi = orangepi.OrangePi{
-		ChannelHook: channelHook,
-		ChannelStop: channelStop,
+		ChannelHookState: channelHookState,
 	}
 	if err := opi.Start(); err != nil {
 		panic(err)
 	}
 	defer opi.Stop()
 
+	// player/recorder
 	pha := phoneaudio.PhoneAudio{
 		GreetingsFile: filepath.Join(storageDir, greetingsSubDir, greetingsFileName),
 		FileManager: filemanager.FileManager{
@@ -62,13 +64,11 @@ func main() {
 		},
 	}
 	pha.SetMaxRecordTime(maxRecordTime)
-
 	pha.Initialize()
 	defer pha.Terminate()
-
 	for {
 		select {
-		case hookCurrentState := <-channelHook:
+		case hookCurrentState := <-channelHookState:
 			if hookCurrentState != hookState {
 				hookState = hookCurrentState
 				logrus.Debugf("Hook state: %t", hookState)
@@ -82,18 +82,13 @@ func main() {
 					pha.Stop()
 				}
 			}
-		case chval := <-channelStop:
-			logrus.Debugf("PowerOff (%d)", chval)
-			stopPhone()
+		case <-channelStop:
+			logrus.Info("GoPhone stop")
+			opi.Stop()
+			os.Exit(0)
 			break
 		}
 	}
-}
-
-func stopPhone() {
-	logrus.Info("GoPhone stop")
-	opi.Stop()
-	os.Exit(0)
 }
 
 func configLogs() {
