@@ -4,21 +4,21 @@
 
 [Unit]
 Description=Go Phone
-After=network.target
+After=syslog.target network.target
 StartLimitIntervalSec=40
 StartLimitBurst=3
 
 [Service]
 Type=simple
-
 RestartSec=5
 Restart=always
-
 ExecStart=/usr/bin/go_phone
 StandardOutput=append:/var/log/go_phone/go_phone.log
-StandardError=append:/var/log/go_phone/go_phone_error.log
+StandardError=append:/var/log/go_phone/go_phone.log
 SendSIGHUP=yes
 
 [Install]
 WantedBy=multi-user.target
 Alias=go_phone.service
+
+
