@@ -106,6 +106,7 @@ arm-init: check-env ## Init orangePI
 	@$(MAKE) arm-init-apt
 	@$(MAKE) arm-init-udev
 	@$(MAKE) arm-init-dts
+	@$(MAKE) arm-init-logrotate
 
 .PHONY: arm-init-apt
 arm-init-apt:
@@ -127,6 +128,13 @@ arm-init-dts:
 	@$(ARM_SSH) 'armbian-add-overlay /root/powerinfo.dts'
 	@scp "./linux/armbian/dts/powerbutton.dts" $(ARM_USER)@$(ARM_IP):/root/
 	@$(ARM_SSH) 'armbian-add-overlay /root/powerbutton.dts'
+
+.PHONY: arm-init-logrotate
+arm-init-logrotate:
+	@echo "ARM $(ARM_IP) init LOGROTATE"
+	@scp "./linux/armbian/logrotate/go_phone" $(ARM_USER)@$(ARM_IP):/etc/logrotate.d/go_phone
+	@$(ARM_SSH) 'logrotate -d /etc/logrotate.d/go_phone'
+	
 	
 .PHONY: arm-send-bin
 arm-send-bin: check-env ## Send binary and config to RPI
@@ -138,6 +146,7 @@ arm-send-bin: check-env ## Send binary and config to RPI
 arm-enable-service: check-env ## Enable christmastree service on RPI
 	@echo "Enable $(APP_NAME) service on ARM $(ARM_IP)..."
 	@scp ./linux/armbian/$(APP_NAME).service $(ARM_USER)@$(ARM_IP):/lib/systemd/system/
+	@$(ARM_SSH) '/usr/bin/mkdir -p /var/log/$(APP_NAME)'
 	@$(ARM_SSH) 'sudo systemctl enable $(APP_NAME).service'
 
 .PHONY: arm-disable-service

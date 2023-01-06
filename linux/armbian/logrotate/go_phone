@@ -1,0 +1,13 @@
+/var/log/go_phone/go_phone.log
+{
+	daily
+	notifempty
+	missingok
+	minsize 10M
+	size 10M
+	compress
+	delaycompress
+	rotate 4
+	create 0644 root root
+}
+
