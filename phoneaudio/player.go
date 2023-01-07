@@ -56,7 +56,7 @@ func (pa *PhoneAudio) playMp3(fileName string) error {
 
 	// get audio format information
 	rate, channels, encoding := decoder.GetFormat()
-	logrus.Infof("Play MP3, Sample Rate: %d, Channels: %d, Encoding %d", rate, channels, encoding)
+	logrus.Infof("Play MP3, Sample Rate: %d, Channels: %d, Encoding %d (File: %s)", rate, channels, encoding, fileName)
 	decoder.FormatNone()
 	decoder.Format(rate, channels, int(encoding))
 
