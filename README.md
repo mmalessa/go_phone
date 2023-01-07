@@ -21,7 +21,12 @@ Private, do not use!
 
 ## Some notes
 
-
+### alsa
+```sh
+alsamixer
+aplay
+speaker-test
+```
 
 ### dts
 ```
