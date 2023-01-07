@@ -49,6 +49,7 @@ func (op *OrangePi) loop() {
 					op.onHookEdgeDetected()
 				}
 			}
+			time.Sleep(100 * time.Millisecond)
 		}
 	}()
 }

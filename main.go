@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/mmalessa/go_phone/filemanager"
 	"github.com/mmalessa/go_phone/orangepi"
@@ -88,6 +89,7 @@ func main() {
 			os.Exit(0)
 			break
 		}
+		time.Sleep(100 * time.Millisecond)
 	}
 }
 
