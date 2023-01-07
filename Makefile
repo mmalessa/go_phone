@@ -125,8 +125,8 @@ arm-init-udev:
 arm-init-dts:
 	@echo "ARM $(ARM_IP) init DTS"
 	@scp "./linux/armbian/dts/powerinfo.dts" $(ARM_USER)@$(ARM_IP):/root/
-	@$(ARM_SSH) 'armbian-add-overlay /root/powerinfo.dts'
 	@scp "./linux/armbian/dts/powerbutton.dts" $(ARM_USER)@$(ARM_IP):/root/
+	@$(ARM_SSH) 'armbian-add-overlay /root/powerinfo.dts'
 	@$(ARM_SSH) 'armbian-add-overlay /root/powerbutton.dts'
 
 .PHONY: arm-init-logrotate
