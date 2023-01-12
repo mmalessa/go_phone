@@ -14,7 +14,7 @@ var (
 	stateActive      = false
 	ledGreen         = orio.Pin(orio.PA10)
 	hookSwitch       = orio.Pin(orio.PA2)
-	hookOnState      = orio.Low
+	hookOnState      = orio.High
 	hookCurrentState = hookOnState
 )
 
