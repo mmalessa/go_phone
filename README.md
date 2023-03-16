@@ -27,6 +27,14 @@ alsamixer
 aplay
 speaker-test
 ```
+[Playback]
+Line Out  100
+Mic1 Boost 100
+DAC 100
+[Capture]
+Mic1 (Capture)
+Mic1 Boost 53
+ADC 43
 
 ### dts
 ```
@@ -49,3 +57,4 @@ lsinput
 input-events 0
 
 ```
+
