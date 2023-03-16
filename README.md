@@ -16,7 +16,7 @@ Private, do not use!
 - `make arm-authorize` to copy ssh key to ARM (login without password)
 - `make arm-init` to "init" some stuff in ARM
 - `make arm-install` to copy binary file to ARM
-- `make rpi-console`
+- `make arm-console`
 
 
 ## Some notes
