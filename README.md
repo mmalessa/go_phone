@@ -58,3 +58,7 @@ input-events 0
 
 ```
 
+### greetings
+The greetings file should be located in the `/greetings` directory (USB) and should be named `greetings.mp3` -> `(USB)/greetings/greetings.mp3`
+
+File format: `mp3` -> 2 channels, low quality (~180-210 kbps)
