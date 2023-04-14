@@ -55,18 +55,15 @@ func (pa *PhoneAudio) playMp3(fileName string) error {
 	defer decoder.Close()
 
 	// get audio format information
-	rate, channels, encoding := decoder.GetFormat()
-	if channels != 2 {
-		return fmt.Errorf("The greetings file has %d channel(s). It must have 2 channels.", channels)
-	}
-	logrus.Infof("Play MP3, Sample Rate: %d, Channels: %d, Encoding %d (File: %s)", rate, channels, encoding, fileName)
+	sampleRate, numOfChannels, encoding := decoder.GetFormat()
+	logrus.Infof("Play MP3, Sample Rate: %d, Channels: %d, Encoding %d (File: %s)", sampleRate, numOfChannels, encoding, fileName)
 	decoder.FormatNone()
-	decoder.Format(rate, channels, int(encoding))
+	decoder.Format(sampleRate, numOfChannels, int(encoding))
 
 	portaudio.Initialize()
 	defer portaudio.Terminate()
 	out := make([]int16, 8192)
-	stream, err := portaudio.OpenDefaultStream(0, channels, float64(rate), len(out)*2, &out)
+	stream, err := portaudio.OpenDefaultStream(0, numOfChannels, float64(sampleRate), len(out)*numOfChannels, &out)
 	if err != nil {
 		return err
 	}
