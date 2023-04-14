@@ -21,6 +21,7 @@ var greetingsFileName string = "greetings.mp3"
 var recordingsSubDir string = "recordings"
 var recordingsFileExtension string = "wav"
 var greetingsSubDir string = "greetings"
+var greetingsDefaultFile string = "/etc/go_phone/greetings_default.mp3"
 var maxRecordTime int = 300 // seconds
 
 func main() {

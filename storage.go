@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -29,7 +30,10 @@ func checkStorageDirectory() error {
 		return err
 	}
 	if !aExists {
-		return fmt.Errorf("greetings file not found (%s)", aFullPath)
+		logrus.Debugf("greeetings file doesn't exist. Try to create default: %s", aFullPath)
+		if err := createDefaultGreetings(storageDir, greetingsSubDir, greetingsFileName); err != nil {
+			return err
+		}
 	}
 	logrus.Debugf("Use greetings file: %s", aFullPath)
 
@@ -71,6 +75,45 @@ func greetingsExist(absolutePath string) (bool, error) {
 	} else {
 		return false, err
 	}
+}
+
+func createDefaultGreetings(storageDir string, greetingsSubDir string, greetingsFileName string) error {
+	aDirPath := filepath.Join(storageDir, greetingsSubDir)
+	if _, err := os.Stat(aDirPath); errors.Is(err, os.ErrNotExist) {
+		if err := os.Mkdir(aDirPath, 0755); err != nil {
+			return err
+		}
+		logrus.Debugf("Greetings directory (%s) created", aDirPath)
+	} else if err != nil {
+		return err
+	}
+
+	aFullPath := filepath.Join(storageDir, greetingsSubDir, greetingsFileName)
+	if _, err := os.Stat(aFullPath); errors.Is(err, os.ErrNotExist) {
+		src := greetingsDefaultFile
+		dst := aFullPath
+
+		fin, err := os.Open(src)
+		if err != nil {
+			return err
+		}
+		defer fin.Close()
+
+		fout, err := os.Create(dst)
+		if err != nil {
+			return err
+		}
+		defer fout.Close()
+
+		if _, err = io.Copy(fout, fin); err != nil {
+			return err
+		}
+		logrus.Debugf("Default greetings has been copied (%s -> %s)", src, dst)
+	} else if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func recordingsExists(absolutePath string) (bool, error) {

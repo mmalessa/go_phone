@@ -106,6 +106,7 @@ arm-init: check-env ## Init orangePI
 	@$(MAKE) arm-init-apt
 	@$(MAKE) arm-init-udev
 	@$(MAKE) arm-init-dts
+	@$(MAKE) arm-init-etc
 	# @$(MAKE) arm-init-logrotate
 
 .PHONY: arm-init-apt
@@ -135,7 +136,12 @@ arm-init-logrotate:
 	@scp "./linux/armbian/logrotate/go_phone" $(ARM_USER)@$(ARM_IP):/etc/logrotate.d/go_phone
 	@$(ARM_SSH) 'logrotate -d /etc/logrotate.d/go_phone'
 	
-	
+.PHONY: arm-init-etc
+arm-init-etc: ## Send files to /env directory
+	@echo "Send files to /env directory"
+	@ssh $(ARM_USER)@$(ARM_IP) 'if ! [ -d /etc/$(APP_NAME) ]; then mkdir /etc/$(APP_NAME); fi'
+	scp ./greetings/greetings_default.mp3 $(ARM_USER)@$(ARM_IP):/etc/$(APP_NAME)/greetings_default.mp3
+
 .PHONY: arm-send-bin
 arm-send-bin: check-env ## Send binary and config to RPI
 	@echo "Send binary and config to RPI"
