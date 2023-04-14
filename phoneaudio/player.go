@@ -56,6 +56,9 @@ func (pa *PhoneAudio) playMp3(fileName string) error {
 
 	// get audio format information
 	rate, channels, encoding := decoder.GetFormat()
+	if channels != 2 {
+		return fmt.Errorf("The greetings file has %d channel(s). It must have 2 channels.", channels)
+	}
 	logrus.Infof("Play MP3, Sample Rate: %d, Channels: %d, Encoding %d (File: %s)", rate, channels, encoding, fileName)
 	decoder.FormatNone()
 	decoder.Format(rate, channels, int(encoding))
