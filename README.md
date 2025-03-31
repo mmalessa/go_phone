@@ -1,5 +1,8 @@
 # Go Phone
-Private, do not use!
+Telephone guestbook
+designed for OrangePi Zero(2)
+
+**You use it at your own risk**
 
 ## Kickstart
 
